@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="WmMG3D" name="NewProject" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
-  <MAINGROUP id="ruEqGd" name="NewProject">
+<JUCERPROJECT id="WmMG3D" name="Low Distortion Test" projectType="audioplug"
+              useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
+              jucerFormatVersion="1">
+  <MAINGROUP id="ruEqGd" name="Low Distortion Test">
     <GROUP id="{00F5779A-B5F7-E2E0-3281-12F40FE2B233}" name="Source">
       <FILE id="QQQQBU" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
