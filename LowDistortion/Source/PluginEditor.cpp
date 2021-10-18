@@ -43,8 +43,10 @@ void NewProjectAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
     g.setColour (juce::Colours::white);
+    g.drawText("Gain", getWidth() / 4 - 50, getHeight() / 2 + 5, 100, 100, juce::Justification::centred, false);
+    g.drawText("Tone", (getWidth() / 4) * 2 - 50, getHeight() / 2 + 5, 100, 100, juce::Justification::centred, false);
+    g.drawText("Vol", (getWidth() / 4) * 3 - 50, getHeight() / 2 + 5, 100, 100, juce::Justification::centred, false);
 }
 
 void NewProjectAudioProcessorEditor::resized()
@@ -52,6 +54,6 @@ void NewProjectAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     gainSlider.setBounds(getWidth() / 4 - 50, getHeight() / 2 - 50, 100, 100);
-    toneSlider.setBounds(getWidth() / 2 - 50, getHeight() / 2 - 50, 100, 100);
-    volSlider.setBounds(getWidth() / 2 + 75, getHeight() / 2 - 50, 100, 100);
+    toneSlider.setBounds((getWidth() / 4) * 2 - 50, getHeight() / 2 - 50, 100, 100);
+    volSlider.setBounds((getWidth() / 4) * 3 - 50, getHeight() / 2 - 50, 100, 100);
 }
