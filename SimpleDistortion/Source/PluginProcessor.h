@@ -56,9 +56,21 @@ public:
     //==============================MY Variables====================================
     float gainVal;
     float volVal;
+
     int selectedDist;
 
+    void updateFilter();
+    float lowFilterVal;
+    float midFilterVal;
+    float highFilterVal;
+    
+
 private:
+
+    float lastSampleRate;
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> lowBandFilter;
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> midBandFilter;
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> highBandFilter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleDistortionAudioProcessor)
 };

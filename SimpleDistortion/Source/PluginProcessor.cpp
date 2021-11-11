@@ -19,7 +19,9 @@ SimpleDistortionAudioProcessor::SimpleDistortionAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), lowBandFilter(juce::dsp::IIR::Coefficients<float>::makeBandPass(44100, 150.0f))
+                        , midBandFilter(juce::dsp::IIR::Coefficients<float>::makeBandPass(44100, 700.0f))
+                        , highBandFilter(juce::dsp::IIR::Coefficients<float>::makeBandPass(44100, 2000.0f))
 #endif
 {
 }
@@ -93,8 +95,18 @@ void SimpleDistortionAudioProcessor::changeProgramName (int index, const juce::S
 //==============================================================================
 void SimpleDistortionAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    lastSampleRate = sampleRate;
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+    spec.sampleRate = sampleRate;
+
+    lowBandFilter.prepare(spec);
+    midBandFilter.prepare(spec);
+    highBandFilter.prepare(spec);
+    lowBandFilter.reset();
+    midBandFilter.reset();
+    highBandFilter.reset();
 }
 
 void SimpleDistortionAudioProcessor::releaseResources()
@@ -135,6 +147,7 @@ void SimpleDistortionAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).
@@ -143,6 +156,13 @@ void SimpleDistortionAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+
+    //EQ processing
+    auto audioBlock = juce::dsp::AudioBlock<float>(buffer);
+    updateFilter();
+    lowBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    midBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    highBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -153,13 +173,15 @@ void SimpleDistortionAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
-
+        
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
+           
+            channelData[sample] = channelData[sample] * gainVal;
+            
             //Hard cliping
             if (selectedDist == 1)
             {
-                channelData[sample] = channelData[sample] * gainVal;
                 if (channelData[sample] > 0.2f)
                 {
                     channelData[sample] = 0.2f;
@@ -173,13 +195,25 @@ void SimpleDistortionAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
             //Soft Clipping
             if (selectedDist == 2)
             {
-                channelData[sample] = channelData[sample];
+                if (channelData[sample] > 0.5f)
+                {
+                    channelData[sample] = 1.0f - expf(-channelData[sample]);
+                }
+                else if (channelData[sample] < - 0.5f)
+                {
+                    channelData[sample] = -1.0 + expf(channelData[sample]);
+                }
+                else
+                {
+                    channelData[sample] = channelData[sample];
+                }
             }
             
 
             //vol control
             channelData[sample] = channelData[sample] * volVal;
         }
+        
     }
 }
 
@@ -206,6 +240,14 @@ void SimpleDistortionAudioProcessor::setStateInformation (const void* data, int 
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+void SimpleDistortionAudioProcessor::updateFilter()
+{
+
+    *lowBandFilter.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass(lastSampleRate, lowFilterVal);
+    *midBandFilter.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass(lastSampleRate, midFilterVal);
+    *highBandFilter.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass(lastSampleRate, highFilterVal);
 }
 
 //==============================================================================

@@ -31,9 +31,24 @@ private:
     // access the processor object that created it.
     SimpleDistortionAudioProcessor& audioProcessor;
 
+    //volume and gain
     juce::Slider gainSlider;
     juce::Slider volSlider;
+
+    //to select distorion type
     juce::ComboBox distType;
+    //to turn distortion on/off
+    juce::ComboBox distOn;
+    //turn on/off EQ
+    juce::ComboBox eqOn;
+
+    //EQ
+    juce::Slider lowSlider;
+    juce::Slider midSlider;
+    juce::Slider highSlider;
+
+
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleDistortionAudioProcessorEditor)
 };
