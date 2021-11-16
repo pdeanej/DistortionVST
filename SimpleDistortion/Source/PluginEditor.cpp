@@ -95,6 +95,11 @@ void SimpleDistortionAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawText("Low", 90, 325, 100, 100, juce::Justification::centred, false);
     g.drawText("Mid", 90, 360, 100, 100, juce::Justification::centred, false);
     g.drawText("High", 90, 395, 100, 100, juce::Justification::centred, false);
+
+    //draw text for comboboxes
+    g.drawText("Distortion", 15, 80, 100, 100, juce::Justification::centred, false);
+    g.drawText("EQ", 15, 303, 100, 100, juce::Justification::centred, false);
+    g.drawText("Distortion Type", 200, 80, 100, 100, juce::Justification::centred, false);
 }
 
 void SimpleDistortionAudioProcessorEditor::resized()
@@ -145,5 +150,11 @@ void SimpleDistortionAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
     if (box == &distType)
     {
         audioProcessor.selectedDist = distType.getSelectedId();
+    }
+    if (box == &distOn) {
+        audioProcessor.isDistOn = distOn.getSelectedId();
+    }
+    if (box == &eqOn) {
+        audioProcessor.isEqOn = eqOn.getSelectedId();
     }
 }

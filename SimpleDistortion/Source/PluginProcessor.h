@@ -63,6 +63,9 @@ public:
     float lowFilterVal;
     float midFilterVal;
     float highFilterVal;
+
+    int isDistOn;
+    int isEqOn;
     
 
 private:

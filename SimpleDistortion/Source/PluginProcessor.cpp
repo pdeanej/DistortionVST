@@ -158,11 +158,13 @@ void SimpleDistortionAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
         buffer.clear (i, 0, buffer.getNumSamples());
 
     //EQ processing
-    auto audioBlock = juce::dsp::AudioBlock<float>(buffer);
-    updateFilter();
-    lowBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
-    midBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
-    highBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    if (isEqOn == 1) {
+        auto audioBlock = juce::dsp::AudioBlock<float>(buffer);
+        updateFilter();
+        lowBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+        midBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+        highBandFilter.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    }
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -177,41 +179,44 @@ void SimpleDistortionAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
            
-            channelData[sample] = channelData[sample] * gainVal;
-            
-            //Hard cliping
-            if (selectedDist == 1)
-            {
-                if (channelData[sample] > 0.2f)
-                {
-                    channelData[sample] = 0.2f;
-                }
-                if (channelData[sample] < -0.2f)
-                {
-                    channelData[sample] = -0.2f;
-                }
-            }
+            if (isDistOn == 1) {
+                channelData[sample] = channelData[sample] * gainVal;
 
-            //Soft Clipping
-            if (selectedDist == 2)
-            {
-                if (channelData[sample] > 0.5f)
+                //Hard cliping
+                if (selectedDist == 1)
                 {
-                    channelData[sample] = 1.0f - expf(-channelData[sample]);
+                    if (channelData[sample] > 0.2f)
+                    {
+                        channelData[sample] = 0.2f;
+                    }
+                    if (channelData[sample] < -0.2f)
+                    {
+                        channelData[sample] = -0.2f;
+                    }
                 }
-                else if (channelData[sample] < - 0.5f)
-                {
-                    channelData[sample] = -1.0 + expf(channelData[sample]);
-                }
-                else
-                {
-                    channelData[sample] = channelData[sample];
-                }
-            }
-            
 
-            //vol control
-            channelData[sample] = channelData[sample] * volVal;
+                //Soft Clipping
+                if (selectedDist == 2)
+                {
+                    if (channelData[sample] > 0.5f)
+                    {
+                        channelData[sample] = 1.0f - expf(-channelData[sample]);
+                    }
+                    else if (channelData[sample] < -0.5f)
+                    {
+                        channelData[sample] = -1.0 + expf(channelData[sample]);
+                    }
+                    else
+                    {
+                        channelData[sample] = channelData[sample];
+                    }
+                }
+
+
+                //vol control
+                channelData[sample] = channelData[sample] * volVal;
+            }
+          
         }
         
     }
